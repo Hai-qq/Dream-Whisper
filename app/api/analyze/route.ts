@@ -22,7 +22,7 @@ const SYSTEM_PROMPT = `你是一位专业的梦境分析师，融合荣格分析
   "psychological_insight": "心理层面的深度洞察",
   "life_connection": "与现实生活可能的关联",
   "suggestions": ["建设性建议1", "建设性建议2"],
-  "image_prompt": "用于生成梦境图像的英文描述，超现实主义风格，包含梦境的关键视觉元素，氛围感强"
+  "image_prompt": "用于绘画的详细英文场景描述，必须包含：1)具体的场景环境描述 2)梦中出现的人物或生物的外貌特征 3)关键物品的形态细节 4)光线和色彩氛围（如golden sunset light, misty blue fog等）5)情绪感觉的视觉化呈现。风格：surrealistic dreamscape, ethereal atmosphere, cinematic lighting, highly detailed digital painting, artstation trending"
 }`;
 
 export async function POST(req: Request) {
