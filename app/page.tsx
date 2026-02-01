@@ -380,7 +380,9 @@ export default function Home() {
             <span className="font-mono tracking-widest uppercase text-xs">Dream Whisper System</span>
             <div className="h-px w-12 bg-indigo-500/20"></div>
           </div>
-          <p className="font-light">Designed & Built by YiHai</p>
+          <p className="font-light">
+            Designed & Built by <Link href="https://github.com/Hai-qq/Dream-Whisper" target="_blank" className="hover:text-indigo-300 transition-colors underline decoration-indigo-500/30 underline-offset-4">Yee</Link>
+          </p>
           <p className="opacity-60">© 2026 梦语 Dream Whisper</p>
         </footer>
       </div>

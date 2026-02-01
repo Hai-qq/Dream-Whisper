@@ -1,6 +1,6 @@
 # 梦语 (Dream Whisper) 技术文档
 
-**作者: YiHai**
+**作者: Yee**
 
 ## 1. 项目概述
 
