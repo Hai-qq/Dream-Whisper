@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dreamer Analyst - AI 梦境分析师",
+  title: "梦语 - AI 梦境分析师",
   description: "基于 AI 的梦境记录与分析平台，解读你的潜意识密码",
 };
 
