@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0B0C15;
+  --foreground: #ededed;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --animate-twinkle: twinkle 4s ease-in-out infinite;
+  --animate-pulse-slow: pulse-slow 8s ease-in-out infinite;
+  --animate-shooting-star: shooting-star 10s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes twinkle {
+
+    0%,
+    100% {
+      opacity: 0.2;
+      transform: scale(0.8);
+    }
+
+    50% {
+      opacity: 1;
+      transform: scale(1.5);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  @keyframes pulse-slow {
+
+    0%,
+    100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 0.6;
+      transform: scale(1.1);
+    }
+  }
+
+  @keyframes shooting-star {
+    0% {
+      transform: translateX(0) translateY(0) rotate(-45deg);
+      opacity: 0;
+    }
+
+    10% {
+      opacity: 1;
+    }
+
+    20% {
+      transform: translateX(-300px) translateY(300px) rotate(-45deg);
+      opacity: 0;
+    }
+
+    100% {
+      transform: translateX(-300px) translateY(300px) rotate(-45deg);
+      opacity: 0;
+    }
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
