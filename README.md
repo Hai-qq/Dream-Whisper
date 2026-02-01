@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 梦语 (Dream Whisper)
 
-## Getting Started
+**梦语 (Dream Whisper)** 是一款基于 AI 的梦境分析与可视化应用。它不仅能深度解析用户的梦境心理，还能通过生成式 AI 将梦境转化为高质量的图像和视频，并构建动态的“潜意识人格画像”。
 
-First, run the development server:
+## 功能亮点
+
+- **梦境解析**: 基于 GLM-4 模型的深度心理学解读（荣格/弗洛伊德流派）。
+- **影像生成**: 将梦境转化为动漫风格的图像与视频。
+- **人格画像**: 动态分析梦境数据，生成五维潜意识人格雷达图。
+- **沉浸体验**: 星空背景与流媒体交互体验。
+
+## 快速开始
+
+### 1. 克隆项目
+
+```bash
+git clone https://github.com/Hai-qq/dreamer-analyst.git
+cd dreamer-analyst
+```
+
+### 2. 安装依赖
+
+```bash
+npm install
+# 或者
+yarn install
+# 或者
+pnpm install
+```
+
+### 3. 配置环境变量
+
+在项目根目录创建 `.env.local` 文件，并添加以下 API 密钥：
+
+```bash
+# 智谱 AI (用于文本分析)
+GLM_API_KEY=your_zhipu_api_key
+
+# Replicate (用于图像/视频生成)
+REPLICATE_API_TOKEN=your_replicate_token
+```
+
+### 4. 运行开发服务器
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+打开浏览器访问 [http://localhost:3000](http://localhost:3000) 即可开始体验。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 部署
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+本项目支持一键部署到 [Vercel](https://vercel.com)。
 
-## Learn More
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FHai-qq%2Fdreamer-analyst)
 
-To learn more about Next.js, take a look at the following resources:
+确保在 Vercel 项目设置中配置上述环境变量。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 技术栈
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **框架**: Next.js 15 (App Router)
+- **UI**: Tailwind CSS, Lucide React, Framer Motion
+- **AI**: Zhipu AI (GLM-4), Replicate (Flux/Luma)
+- **图表**: Recharts
 
-## Deploy on Vercel
+## 许可证
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT License
