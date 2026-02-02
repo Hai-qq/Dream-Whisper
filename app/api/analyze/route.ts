@@ -2,10 +2,7 @@ import OpenAI from 'openai';
 import { NextResponse } from 'next/server';
 
 // 使用智谱 GLM API（兼容 OpenAI 格式）
-const openai = new OpenAI({
-    apiKey: process.env.GLM_API_KEY,
-    baseURL: 'https://open.bigmodel.cn/api/paas/v4',
-});
+// OpenAI client initialized lazily
 
 const SYSTEM_PROMPT = `You are a professional dream analyst, integrating Jungian and Freudian psychoanalytic theories.
 Your task is to conduct an in-depth psychological analysis of the dream description (which may include multi-turn conversations) and provide a prompt for image generation.
@@ -50,6 +47,12 @@ export async function POST(req: Request) {
         } else {
             userContent = `用户的梦境描述：${dream}`;
         }
+
+
+        const openai = new OpenAI({
+            apiKey: process.env.GLM_API_KEY,
+            baseURL: 'https://open.bigmodel.cn/api/paas/v4',
+        });
 
         const response = await openai.chat.completions.create({
             model: 'glm-4-flash',

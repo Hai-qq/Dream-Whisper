@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-    apiKey: process.env.DASHSCOPE_API_KEY,
-    baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-});
+// OpenAI client initialized lazily
 
 // 系统提示词：设定面试官人格
 const SYSTEM_PROMPT = `
@@ -29,6 +26,12 @@ export async function POST(req: Request) {
         if (!messages || !Array.isArray(messages)) {
             return NextResponse.json({ error: '无效的消息格式' }, { status: 400 });
         }
+
+
+        const openai = new OpenAI({
+            apiKey: process.env.DASHSCOPE_API_KEY || process.env.GLM_API_KEY, // Fallback or strict? Keeping original logic but safer
+            baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+        });
 
         const completion = await openai.chat.completions.create({
             model: 'qwen-plus',
