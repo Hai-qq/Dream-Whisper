@@ -1,11 +1,8 @@
 ---
 title: Dream Whisper
-emoji: 🌖
-colorFrom: indigo
-colorTo: purple
 sdk: docker
-pinned: false
 app_port: 7860
+license: mit
 ---
 
 # 梦语 (Dream Whisper)
