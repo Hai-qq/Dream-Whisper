@@ -1,34 +1,16 @@
 import { NextResponse } from 'next/server';
 
-// 智谱 CogVideoX API 配置
-const GLM_VIDEO_API_URL = 'https://open.bigmodel.cn/api/paas/v4/videos/generations';
-
-// 下载图片并转换为 Base64 data URI
-async function imageUrlToDataUri(imageUrl: string): Promise<string> {
-    console.log('正在下载图片转 Base64...');
-    const response = await fetch(imageUrl);
-
-    if (!response.ok) {
-        throw new Error(`下载图片失败: ${response.status}`);
-    }
-
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const base64 = buffer.toString('base64');
-
-    const contentType = response.headers.get('content-type') || 'image/png';
-    console.log(`图片类型: ${contentType}, Base64 长度: ${base64.length}`);
-
-    // 返回 data URI 格式
-    return `data:${contentType};base64,${base64}`;
-}
+// 火山引擎 Ark 视频生成 API 配置
+const ARK_VIDEO_API_URL = 'https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks';
+// const MODEL_ID = '9825a1a6-df28-4ede-9ee2-36187cc34da9'; // 用户提供的 ID 未找到，使用可用模型
+const MODEL_ID = 'doubao-seedance-1-5-pro-251215';
 
 // 轮询等待视频生成完成
 async function pollForVideo(taskId: string, apiKey: string, maxAttempts = 120): Promise<string | null> {
     for (let i = 0; i < maxAttempts; i++) {
         console.log(`轮询视频结果... 尝试 ${i + 1}/${maxAttempts}`);
 
-        const response = await fetch(`https://open.bigmodel.cn/api/paas/v4/async-result/${taskId}`, {
+        const response = await fetch(`${ARK_VIDEO_API_URL}/${taskId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${apiKey}`,
@@ -36,13 +18,14 @@ async function pollForVideo(taskId: string, apiKey: string, maxAttempts = 120): 
         });
 
         const data = await response.json();
-        console.log('轮询状态:', data.task_status);
+        console.log('轮询状态:', data.status);
 
-        if (data.task_status === 'SUCCESS') {
+        if (data.status === 'succeeded') {
             // 返回视频 URL
-            const videoResult = data.video_result?.[0];
-            return videoResult?.url || videoResult?.cover_image_url || null;
-        } else if (data.task_status === 'FAIL') {
+            // Ark 通常在 content.video_url 或 result.video_url 返回
+            console.log('任务成功数据:', JSON.stringify(data.content));
+            return data.content?.video_url || data.content?.url || data.result?.video_url || null;
+        } else if (data.status === 'failed') {
             console.error('视频生成失败:', data);
             return null;
         }
@@ -55,7 +38,7 @@ async function pollForVideo(taskId: string, apiKey: string, maxAttempts = 120): 
 }
 
 export async function POST(req: Request) {
-    console.log('=== 视频生成 API 开始 (智谱 CogVideoX) ===');
+    console.log('=== 视频生成 API 开始 (火山引擎 Ark) ===');
 
     try {
         const { imageUrl, prompt } = await req.json();
@@ -65,36 +48,53 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: '请先生成图像' }, { status: 400 });
         }
 
-        const apiKey = process.env.GLM_API_KEY;
+        const apiKey = process.env.ARK_API_KEY;
 
         if (!apiKey) {
-            console.error('缺少 GLM API Key');
+            console.error('缺少 ARK API Key');
             return NextResponse.json({ error: '服务配置错误' }, { status: 500 });
         }
 
-        // 将图片 URL 转换为 Base64 data URI
-        let imageDataUri: string;
-        try {
-            imageDataUri = await imageUrlToDataUri(imageUrl);
-        } catch (e) {
-            console.error('图片转 Base64 失败:', e);
-            return NextResponse.json({ error: '图片处理失败，请重试' }, { status: 500 });
-        }
-
-        console.log('开始调用智谱 CogVideoX API...');
+        console.log('开始调用火山引擎 Ark Video API...');
         const startTime = Date.now();
 
         // 提交视频生成任务
-        const response = await fetch(GLM_VIDEO_API_URL, {
+        // 使用 Content Generation API 格式
+        // 参考用户提供的示例：
+        // {
+        //     "model": "doubao-seedance-1-5-pro-251215",
+        //     "content": [
+        //         {
+        //             "type": "text",
+        //             "text": "prompt --duration 5 --camerafixed false --watermark true"
+        //         },
+        //         {
+        //             "type": "image_url",
+        //             "image_url": {
+        //                 "url": "https://..."
+        //             }
+        //         }
+        //     ]
+        // }
+        const response = await fetch(ARK_VIDEO_API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-                model: 'cogvideox',
-                image_url: imageDataUri,
-                prompt: prompt || '轻柔流动，梦幻氛围，缓慢移动的光影效果，电影级画面',
+                model: MODEL_ID,
+                generate_audio: false, // 禁用音频生成
+                content: [
+                    {
+                        type: "text",
+                        text: `${prompt || '让画面动起来，轻柔流动'} --duration 5 --camerafixed false --watermark true`
+                    },
+                    {
+                        type: "image_url",
+                        image_url: { url: imageUrl }
+                    }
+                ]
             }),
         });
 
@@ -108,7 +108,7 @@ export async function POST(req: Request) {
             );
         }
 
-        // CogVideoX 返回异步任务 ID
+        // Ark 返回任务 ID usually in 'id'
         const taskId = data.id;
         if (!taskId) {
             console.error('未获取到任务 ID:', data);
@@ -130,7 +130,8 @@ export async function POST(req: Request) {
 
         console.log('视频生成成功:', videoUrl.substring(0, 80) + '...');
 
-        // 返回代理 URL 以解决 CORS 问题
+        // 返回代理 URL 以解决 CORS 问题 (如果需要)
+        // 假设 Ark 返回的 URL 是可以直接访问的 AWS S3 / TOS 链接
         const proxyUrl = `/api/video-proxy?url=${encodeURIComponent(videoUrl)}`;
         return NextResponse.json({ videoUrl: proxyUrl });
     } catch (error) {

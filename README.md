@@ -5,7 +5,7 @@
 ## 功能亮点
 
 - **梦境解析**: 基于 GLM-4 模型的深度心理学解读（荣格/弗洛伊德流派）。
-- **影像生成**: 将梦境转化为动漫风格的图像与视频。
+- **影像生成**: 利用字节跳动 Volcengine Ark (Doubao 模型) 将梦境转化为动漫风格的图像与视频。
 - **人格画像**: 动态分析梦境数据，生成五维潜意识人格雷达图。
 - **沉浸体验**: 星空背景与流媒体交互体验。
 
@@ -36,8 +36,8 @@ pnpm install
 # 智谱 AI (用于文本分析)
 GLM_API_KEY=your_zhipu_api_key
 
-# Replicate (用于图像/视频生成)
-REPLICATE_API_TOKEN=your_replicate_token
+# 火山引擎方舟 (Volcengine Ark) (用于图像/视频生成)
+ARK_API_KEY=your_volcengine_ark_api_key
 ```
 
 ### 4. 运行开发服务器
@@ -60,7 +60,7 @@ npm run dev
 
 - **框架**: Next.js 15 (App Router)
 - **UI**: Tailwind CSS, Lucide React, Framer Motion
-- **AI**: Zhipu AI (GLM-4), Replicate (Flux/Luma)
+- **AI**: Zhipu AI (GLM-4), Volcengine Ark (Doubao)
 - **图表**: Recharts
 
 ## 许可证

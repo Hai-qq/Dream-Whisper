@@ -1,41 +1,12 @@
 import { NextResponse } from 'next/server';
 
-// 阿里云 DashScope 通义万相 API 配置
-const DASHSCOPE_API_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis';
-const DASHSCOPE_TASK_URL = 'https://dashscope.aliyuncs.com/api/v1/tasks';
-
-// 轮询等待图像生成完成
-async function pollForImage(taskId: string, apiKey: string, maxAttempts = 30): Promise<string | null> {
-    for (let i = 0; i < maxAttempts; i++) {
-        console.log(`轮询通义万相结果... 尝试 ${i + 1}/${maxAttempts}`);
-
-        const response = await fetch(`${DASHSCOPE_TASK_URL}/${taskId}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-            },
-        });
-
-        const data = await response.json();
-        // console.log('轮询状态:', data.output?.task_status);
-
-        if (data.output?.task_status === 'SUCCEEDED') {
-            // 返回图像 URL
-            return data.output.results?.[0]?.url || null;
-        } else if (data.output?.task_status === 'FAILED' || data.output?.task_status === 'UNKNOWN') {
-            console.error('图像生成失败:', data);
-            return null;
-        }
-
-        // 等待 2 秒后继续轮询
-        await new Promise(resolve => setTimeout(resolve, 2000));
-    }
-
-    return null;
-}
+// 火山引擎方舟 (Volcengine Ark) API 配置
+const ARK_API_URL = 'https://ark.cn-beijing.volces.com/api/v3/images/generations';
+// const MODEL_ID = '0101fe84-eddc-4a08-9ef1-f72fc9cef348'; // 用户提供的 ID 未找到，使用可用模型
+const MODEL_ID = 'doubao-seedream-4-5-251128';
 
 export async function POST(req: Request) {
-    console.log('=== 图像生成 API 开始 (通义万相 Wanx) ===');
+    console.log('=== 图像生成 API 开始 (火山引擎 Ark) ===');
 
     try {
         const { prompt } = await req.json();
@@ -45,37 +16,36 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: '请提供图像描述' }, { status: 400 });
         }
 
-        const apiKey = process.env.DASHSCOPE_API_KEY;
+        const apiKey = process.env.ARK_API_KEY;
 
         if (!apiKey) {
-            console.error('缺少 DashScope API Key');
+            console.error('缺少 ARK API Key');
             return NextResponse.json({ error: '服务配置错误' }, { status: 500 });
         }
 
         // 增强提示词，简洁动漫风格
         const enhancedPrompt = `${prompt}, 动漫风格, 简洁线条, 柔和色彩, 吉卜力风格, 梦幻氛围, 极简背景, 柔光, 插画风格`;
 
-        console.log('开始调用通义万相 API...');
+        console.log('开始调用火山引擎 Ark API...');
         const startTime = Date.now();
 
-        // 提交生成任务
-        const response = await fetch(DASHSCOPE_API_URL, {
+        // 提交生成任务 (OpenAI 兼容接口通常是同步的，但有些模型耗时较长可能需要较长超时设置)
+        // 参考用户提供的示例：
+        // size: "2K", watermark: true, sequential_image_generation: "disabled"
+        const response = await fetch(ARK_API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${apiKey}`,
-                'X-DashScope-Async': 'enable',
             },
             body: JSON.stringify({
-                model: 'wanx-v1',
-                input: {
-                    prompt: enhancedPrompt,
-                },
-                parameters: {
-                    style: '<auto>',
-                    size: '1024*1024',
-                    n: 1,
-                }
+                model: MODEL_ID,
+                prompt: enhancedPrompt,
+                sequential_image_generation: "disabled",
+                response_format: "url",
+                size: "2K",
+                stream: false,
+                watermark: true
             }),
         });
 
@@ -84,27 +54,19 @@ export async function POST(req: Request) {
         if (!response.ok) {
             console.error('API 错误:', data);
             return NextResponse.json(
-                { error: data.message || '图像生成失败' },
+                { error: data.error?.message || '图像生成失败' },
                 { status: response.status }
             );
         }
 
-        const taskId = data.output?.task_id;
-        if (!taskId) {
-            console.error('未获取到任务 ID:', data);
-            return NextResponse.json({ error: '任务提交失败' }, { status: 500 });
-        }
-
-        console.log('任务 ID:', taskId);
-        console.log('开始轮询等待图像生成...');
-
-        const imageUrl = await pollForImage(taskId, apiKey);
-
         const duration = Date.now() - startTime;
-        console.log(`通义万相响应完成，总耗时: ${duration}ms`);
+        console.log(`火山引擎响应完成，总耗时: ${duration}ms`);
+
+        const imageUrl = data.data?.[0]?.url;
 
         if (!imageUrl) {
-            return NextResponse.json({ error: '图像生成超时或失败' }, { status: 500 });
+            console.error('未收到图像 URL:', data);
+            return NextResponse.json({ error: '图像生成失败，未返回 URL' }, { status: 500 });
         }
 
         console.log('图像生成成功:', imageUrl.substring(0, 50) + '...');
@@ -119,3 +81,4 @@ export async function POST(req: Request) {
         );
     }
 }
+
