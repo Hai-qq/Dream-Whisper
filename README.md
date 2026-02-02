@@ -1,3 +1,13 @@
+---
+title: Dream Whisper
+emoji: 🌖
+colorFrom: indigo
+colorTo: purple
+sdk: docker
+pinned: false
+app_port: 7860
+---
+
 # 梦语 (Dream Whisper)
 
 **梦语 (Dream Whisper)** 是一款基于 AI 的梦境分析与可视化应用。它不仅能深度解析用户的梦境心理，还能通过生成式 AI 将梦境转化为高质量的图像和视频，并构建动态的“潜意识人格画像”。
