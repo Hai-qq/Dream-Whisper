@@ -21,11 +21,14 @@ export async function GET(req: Request) {
             );
         }
 
+        // Buffer the video data
         const videoBuffer = await response.arrayBuffer();
+        console.log(`Successfully buffered video. Size: ${videoBuffer.byteLength} bytes`);
 
         return new NextResponse(videoBuffer, {
             headers: {
                 'Content-Type': 'video/mp4',
+                'Content-Disposition': 'attachment; filename="dream_video.mp4"',
                 'Content-Length': videoBuffer.byteLength.toString(),
                 'Cache-Control': 'public, max-age=31536000',
             },
